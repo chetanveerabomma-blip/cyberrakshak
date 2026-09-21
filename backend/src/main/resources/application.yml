@@ -1,0 +1,28 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: cyberrakshak-backend
+  data:
+    mongodb:
+      uri: ${MONGODB_URI:mongodb://localhost:27017/cyberrakshak_db}
+      auto-index-creation: true
+  servlet:
+    multipart:
+      max-file-size: 25MB
+      max-request-size: 30MB
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:CyberRakshakMasterUltraSecureKeyToken2026WithSufficientLengthForHS512AlgorithmSecurity!}
+    expiration-ms: 86400000 # 24 hours
+  ai-service:
+    url: ${AI_SERVICE_URL:http://localhost:8000}
+  upload:
+    dir: ${UPLOAD_DIR:C:/Users/V CHETAN/.gemini/antigravity/scratch/cyberrakshak/uploads}
+
+logging:
+  level:
+    root: INFO
+    com.cyberrakshak: DEBUG
