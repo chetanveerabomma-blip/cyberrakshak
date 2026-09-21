@@ -1,3 +1,5 @@
+import { handleMockFallback } from './mockFallback';
+
 const API_BASE = '/api';
 
 export const getAuthToken = () => localStorage.getItem('cyberrakshak_token');
@@ -27,27 +29,25 @@ export async function apiRequest(endpoint, options = {}) {
     delete headers['Content-Type'];
   }
 
-  const res = await fetch(`${API_BASE}${endpoint}`, {
-    ...options,
-    headers
-  });
+  try {
+    const res = await fetch(`${API_BASE}${endpoint}`, {
+      ...options,
+      headers
+    });
 
-  if (!res.ok) {
-    let errorMsg = 'Request failed';
-    try {
-      const errorData = await res.json();
-      errorMsg = errorData.message || errorData.error || errorMsg;
-    } catch {
-      // fallback
+    if (res.ok) {
+      const contentType = res.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        return await res.json();
+      }
+      return res;
     }
-    throw new Error(errorMsg);
+  } catch (err) {
+    console.warn(`[CyberRakshak] Live API connection unreachable for ${endpoint}, using static client engine.`);
   }
 
-  const contentType = res.headers.get('content-type');
-  if (contentType && contentType.includes('application/json')) {
-    return await res.json();
-  }
-  return res;
+  // Fallback to client mock engine when running on GitHub Pages or offline
+  return await handleMockFallback(endpoint, options);
 }
 
 export const api = {
